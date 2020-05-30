@@ -38,7 +38,7 @@ def readMGF(mgf_path, scanSet="ALL"):
                         ints = float(lineList[1].strip())
                         specInfo.append([mz, ints])
                         p += 1
-                scanInfoDic[scanNum] = [mzPre, charge, specInfo]
+                scanInfoDic[scanTitle] = [mzPre, charge, specInfo]
             else:
                 p = i + 5
                 while p < len(f):
