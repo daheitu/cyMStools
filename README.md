@@ -1,3 +1,8 @@
+# release note May, 30， 2020
+## add readmgf function, 
+## add calculation the similarity of two spectra
+
+
 # cyMStools
 mass spec tools
 summary the plink2 reports file
