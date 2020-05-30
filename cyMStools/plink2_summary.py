@@ -6,7 +6,14 @@ This script can help you to summary the plink2 report file
 import os
 import re
 
+# reports_path = r"./"
 
+# spec_cutoff = 3  # spectra number cut-off
+# Best_evalue_cutoff = 2 # 交联位点对层次最好的e-value cutoff
+# E_value_cutoff_SpecLvl = 2.0 # 谱图层次的e-value cutoff
+
+
+# 对字典的key进行计数
 def count_keyIndic(ele, ele_dic):
     if ele not in ele_dic:
         ele_dic[ele] = 1
@@ -46,28 +53,34 @@ def judgeHomoHetro(linked_site, pepXL):
             return "Inter"
 
 
+# 判断根据位点和多个肽段判断，是intra or inter
+def isInterforSiteInPeps(link_site, xlpep_list):
+    for j in range(len(xlpep_list)):
+        if judgeHomoHetro(link_site, xlpep_list[j]) == "Inter":
+            return True
+    return False
+
+
 # 位点处理，将位点对里面的反库蛋白和污染蛋白的交联对剔除
-def site_list_process(site_list, pepXLlist=["WFC(2)-XSV(2)"]):
+def site_list_process(site_list): #, pepXLlist=["WFC(2)-XSV(2)"]):
     i = 0
     while i < len(site_list):
         if "REVERSE" in site_list[i] or "gi|CON" in site_list[i]:
-            site_list.remove(site_list[i])
+            del site_list[i]
+            # site_list.remove(site_list[i])
         else:
             i += 1
 
+
+def obtain_sites_types(site_list, pepXLlist):
     if site_list == "":
         return "", None
     else:
         link_type_list = []
         for i in range(len(site_list)):
-            boolInter = False
-            for j in range(len(pepXLlist)):
-                if judgeHomoHetro(site_list[i], pepXLlist[j]) == "Inter":
-                    boolInter = True
-                    break
-                else:
-                    continue
-            if boolInter:
+            site = site_list[i]
+            isInter = isInterforSiteInPeps(site, pepXLlist)
+            if isInter:
                 link_type_list.append("Inter")
             else:
                 link_type_list.append("Intra")
@@ -134,10 +147,7 @@ def cal_numRange(openedfl, k_column):
         if lineList[k]:
             valList.append(float(lineList[k]))
     valList.sort()
-    if valList == []:
-        return 0
-    else:
-        return "{0:.1e}~{1:.1e}".format(valList[0], valList[-1])
+    return "{0:.1e}~{1:.1e}".format(valList[0], valList[-1])
 
 
 def statistic_report_file():
@@ -202,8 +212,8 @@ def splitResult(openedfl, raw_name_list, spec_cutoff, Best_evalue_cutoff, E_valu
                     site_list.append(line_list[1])
                 p += 1
 
-        site = site_list_process(site_list)[0]
-        if site == "":
+        site_list_process(site_list)
+        if site_list == []:
             while p < len(f):
                 if f[p].rstrip("\n").split(",")[0].isdigit():
                     break
@@ -245,7 +255,7 @@ def splitResult(openedfl, raw_name_list, spec_cutoff, Best_evalue_cutoff, E_valu
                     p += 1
 
             totalPep = ";".join(pep_std_list)
-            link_type = site_list_process(site_list, pep_std_list)[1]
+            sites, link_types = obtain_sites_types(site_list, pep_std_list)
             total_spec = 0
             min_evalue = 1
             for key in evalue_dic:
@@ -255,8 +265,8 @@ def splitResult(openedfl, raw_name_list, spec_cutoff, Best_evalue_cutoff, E_valu
                 else:
                     continue
             if total_spec >= spec_cutoff and min_evalue < Best_evalue_cutoff:
-                rep_list = [site, total_spec, min_evalue,\
-                    bestSVMscore, totalPep, link_type]
+                rep_list = [sites, total_spec, min_evalue,\
+                    bestSVMscore, totalPep, link_types]
 
                 for raw in raw_name_list:
                     if raw not in spec_dic:
@@ -303,7 +313,7 @@ def write2report(raw_name_list, final_list):
     b.close()
 
 
-def main_flow(reports_path, spec_cutoff, Best_evalue_cutoff):
+def summary_plink2_report(reports_path:str, spec_cutoff:int, Best_evalue_cutoff:float):
     os.chdir(reports_path)
     xlsitesfl = find_xlPeptides_File(reports_path)
     if xlsitesfl == "":
@@ -318,8 +328,4 @@ def main_flow(reports_path, spec_cutoff, Best_evalue_cutoff):
 
 
 if __name__ == "__main__":
-    reports_path = r"G:\msData\20200419\BSA\DSS\output\reports"
-    spec_cutoff = 3  # spectra number cut-off
-    Best_evalue_cutoff = 2 # 交联位点对层次最好的e-value cutoff
-    E_value_cutoff_SpecLvl = 2 # 谱图层次的e-value cutoff
-    main_flow(reports_path, spec_cutoff, Best_evalue_cutoff)
+    summary_plink2_report(reports_path, spec_cutoff, Best_evalue_cutoff)
