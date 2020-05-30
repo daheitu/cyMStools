@@ -96,16 +96,3 @@ def compare2spec(ref_spec, spec2):
     # print(len(mz_m_list), len(ints1_list), len(ints2_list))
     dist = cal_cosin_dis(ints1_list, ints2_list)
     return round(dist, 4)
-
-
-if __name__ == "__main__":
-    scanInfoDic = readMGF("./AC_IR7_SDA_dyn7_R1_HCDFT.mgf")
-    scan_list = [7390, 7847, 10186, 10431, 10618, 10680]
-    for i in range(len(scan_list)-1):
-        scan1 = scan_list[i]
-        spec1 = scanInfoDic[scan1][-1]
-        for j in range(i+1, len(scan_list)):
-            scan2 = scan_list[j]
-            spec2 = scanInfoDic[scan2][-1]
-            print(scan1, scan2)
-            print(compare2spec(spec1, spec2))
