@@ -86,7 +86,7 @@ def alignTwoSpec(ref_spec, spec2):
     return mz_merge_list, ints1_list, ints2_list
 
 
-
+# 返回两张谱的cos距离
 def compare2spec(ref_spec, spec2):
     dist = 0
     mz_m_list, ints1_list, ints2_list = alignTwoSpec(ref_spec, spec2)
