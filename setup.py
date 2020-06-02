@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="cyMStools",# 项目名称，保证它的唯一性，不要跟已存在的包名冲突即可
-    version="0.0.6",
+    version="0.0.6.1",
     author="zhyCAO", # 项目作者
     author_email="zhycao@outlook.com",
     description="mass spec tools", # 项目的一句话描述
